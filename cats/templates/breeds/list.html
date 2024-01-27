@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load rand_color %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .breed {
+      cursor: pointer;
+      border-bottom: .25rem solid transparent;
+    }
+
+    .breed:hover,
+    .breed:focus {
+      border-bottom-color: rgba(255, 255, 255, .25);
+    }
+  </style>
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+
+  </script>
+{% endblock %}
+
+{% block content %}
+  <div>
+    <ul class="list-inline">
+        {% for breed in breeds %}
+          {% with forloop.counter0 as idx %}
+            <li id="{{ idx }}" class="breed list-inline-item" style="color:{% color "pastel" %}">{{ breed.name }}</li>
+          {% endwith %}
+        {% endfor %}
+    </ul>
+  </div>
+
+{% endblock %}

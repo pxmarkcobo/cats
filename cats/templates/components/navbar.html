@@ -23,9 +23,9 @@
   <div>
     <h3 class="float-md-start mb-0">Cats</h3>
     <nav class="nav nav-masthead justify-content-center float-md-end">
-      {% with request.resolver_match.url_name as current_url %}
+      {% with request.resolver_match.view_name as current_url %}
         <a class="nav-link fw-bold py-1 px-0 {% if current_url == "home" %}active{% endif %}" href="{% url 'home' %}">Home</a>
-        <a class="nav-link fw-bold py-1 px-0 {% if current_url == "breeds" %}active{% endif %}" href="{% url 'breeds' %}">Breeds</a>
+        <a class="nav-link fw-bold py-1 px-0 {% if current_url == "breeds:list" %}active{% endif %}" href="{% url 'breeds:list' %}">Breeds</a>
         <a class="nav-link fw-bold py-1 px-0 {% if current_url == "about" %}active{% endif %}" href="{% url 'about' %}">About</a>
       {% endwith %}
     </nav>
