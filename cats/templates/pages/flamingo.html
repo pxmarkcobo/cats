@@ -1,0 +1,84 @@
+{% load static i18n %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}Flamingo{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Doflamingo">
+    <meta name="author" content="Mark Cobo">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        background-color: #000;
+        color: #444;
+        font-size: 13px;
+        font-family: 'JetBrains Mono', monospace;
+        line-height: 24px;
+        overscroll-behavior: none;
+      }
+			a {
+				color: #08f;
+			}
+
+      #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        text-align: center;
+        cursor: pointer;
+      }
+    </style>
+    <script type="x-shader/x-vertex" id="vertexShader">
+      varying vec3 vWorldPosition;
+
+      void main() {
+        vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+      uniform vec3 topColor;
+      uniform vec3 bottomColor;
+      uniform float offset;
+      uniform float exponent;
+
+      varying vec3 vWorldPosition;
+
+      void main() {
+        float h = normalize( vWorldPosition + offset ).y;
+        gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+      }
+    </script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.1/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script>const flamingoModel = "{% static 'models/Flamingo.glb' %}"</script>
+    <script type="module" src="{% static 'js/three.js' %}"></script>
+  </head>
+  <body>
+    <div id="info">
+      <p>is it possible to use three.js in django? yes</p>
+      <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - credits to
+      flamingo by <a href="https://mirada.com/" target="_blank" rel="noopener">mirada</a> from <a href="http://www.ro.me" target="_blank" rel="noopener">ro.me</a>
+    </div>
+    <div id="container"></div>
+  </body>
+</html>

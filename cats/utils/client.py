@@ -1,6 +1,5 @@
 import logging
 import re
-from time import sleep
 from urllib.error import HTTPError
 
 import requests
@@ -25,7 +24,61 @@ def raise_and_log_error(response, *args, **kwargs):
     return response
 
 
-class ImageMocker:
+class ImagesMocker:
+    service_path = "/v1/images/search"
+
+    def get_response(self, request):
+        json_data = [
+            {
+                "id": "j5cVSqLer",
+                "url": "https://cdn2.thecatapi.com/images/j5cVSqLer.jpg",
+                "breeds": [
+                    {
+                        "weight": {"imperial": "5 - 9", "metric": "2 - 4"},
+                        "id": "munc",
+                        "name": "Munchkin",
+                        "vetstreet_url": "http://www.vetstreet.com/cats/munchkin",
+                        "temperament": "Agile, Easy Going, Intelligent, Playful",
+                        "origin": "United States",
+                        "country_codes": "US",
+                        "country_code": "US",
+                        "description": "The Munchkin is an outgoing cat who enjoys being handled. She has lots of energy and is faster and more agile than she looks. The shortness of their legs does not seem to interfere with their running and leaping abilities.",  # noqa E501
+                        "life_span": "10 - 15",
+                        "indoor": 0,
+                        "lap": 1,
+                        "alt_names": "",
+                        "adaptability": 5,
+                        "affection_level": 5,
+                        "child_friendly": 4,
+                        "dog_friendly": 5,
+                        "energy_level": 4,
+                        "grooming": 2,
+                        "health_issues": 3,
+                        "intelligence": 5,
+                        "shedding_level": 3,
+                        "social_needs": 5,
+                        "stranger_friendly": 5,
+                        "vocalisation": 3,
+                        "experimental": 0,
+                        "hairless": 0,
+                        "natural": 0,
+                        "rare": 0,
+                        "rex": 0,
+                        "suppressed_tail": 0,
+                        "short_legs": 1,
+                        "wikipedia_url": "https://en.wikipedia.org/wiki/Munchkin_(cat)",
+                        "hypoallergenic": 0,
+                        "reference_image_id": "j5cVSqLer",
+                    }
+                ],
+                "width": 1600,
+                "height": 1200,
+            }
+        ]
+        return create_response(request, json=json_data, status_code=200)
+
+
+class SingleImageMocker:
     service_path = "/v1/images/(?P<id>.*)"
 
     def get_response(self, request):
@@ -136,7 +189,7 @@ class BreedMocker:
 class CatAPIMatcher:
     def __init__(self):
         self.mockers = {}
-        for m in (BreedMocker(), ImageMocker()):
+        for m in (BreedMocker(), ImagesMocker(), SingleImageMocker()):
             self.mockers[m.service_path] = m
 
     def __call__(self, request, *args, **kwargs):
@@ -182,15 +235,25 @@ class CatsAPIClient:
 
     def get_images(self, image_ids):
         images = []
+        image_ids = image_ids or []
         for image_id in image_ids:
             url = f"{self.host}/v1/images/{image_id}"
-            logger.info(f"Fetching images: {url}")
+
+            logger.info(f"Fetching images via ids: {url}")
             response = self.session.request("GET", url=url)
             data = response.json()
             images.append(data)
-            sleep(1)
 
         return images
+
+    def search_images(self, page=0, limit=10):
+        url = f"{self.host}/v1/images/search"
+        params = {"page": page, "limit": limit, "has_breeds": 1, "order": "DESC"}
+
+        logger.info(f"Fetching random images: {url} - {params}")
+        response = self.session.request("GET", url=url, params=params)
+        data = response.json()
+        return data
 
 
 if __name__ == "__main__":

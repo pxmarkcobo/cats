@@ -11,7 +11,17 @@ from rest_framework.authtoken.views import obtain_auth_token
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
+        "breeds/",
+        TemplateView.as_view(template_name="pages/breeds.html"),
+        name="breeds",
+    ),
+    path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
+    ),
+    path(
+        "flamingo/",
+        TemplateView.as_view(template_name="pages/flamingo.html"),
+        name="flamingo",
     ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
