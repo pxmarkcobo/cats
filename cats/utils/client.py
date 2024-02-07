@@ -32,45 +32,6 @@ class ImagesMocker:
             {
                 "id": "j5cVSqLer",
                 "url": "https://cdn2.thecatapi.com/images/j5cVSqLer.jpg",
-                "breeds": [
-                    {
-                        "weight": {"imperial": "5 - 9", "metric": "2 - 4"},
-                        "id": "munc",
-                        "name": "Munchkin",
-                        "vetstreet_url": "http://www.vetstreet.com/cats/munchkin",
-                        "temperament": "Agile, Easy Going, Intelligent, Playful",
-                        "origin": "United States",
-                        "country_codes": "US",
-                        "country_code": "US",
-                        "description": "The Munchkin is an outgoing cat who enjoys being handled. She has lots of energy and is faster and more agile than she looks. The shortness of their legs does not seem to interfere with their running and leaping abilities.",  # noqa E501
-                        "life_span": "10 - 15",
-                        "indoor": 0,
-                        "lap": 1,
-                        "alt_names": "",
-                        "adaptability": 5,
-                        "affection_level": 5,
-                        "child_friendly": 4,
-                        "dog_friendly": 5,
-                        "energy_level": 4,
-                        "grooming": 2,
-                        "health_issues": 3,
-                        "intelligence": 5,
-                        "shedding_level": 3,
-                        "social_needs": 5,
-                        "stranger_friendly": 5,
-                        "vocalisation": 3,
-                        "experimental": 0,
-                        "hairless": 0,
-                        "natural": 0,
-                        "rare": 0,
-                        "rex": 0,
-                        "suppressed_tail": 0,
-                        "short_legs": 1,
-                        "wikipedia_url": "https://en.wikipedia.org/wiki/Munchkin_(cat)",
-                        "hypoallergenic": 0,
-                        "reference_image_id": "j5cVSqLer",
-                    }
-                ],
                 "width": 1600,
                 "height": 1200,
             }
@@ -88,45 +49,6 @@ class SingleImageMocker:
         json_data = {
             "id": external_id,
             "url": "https://cdn2.thecatapi.com/images/j5cVSqLer.jpg",
-            "breeds": [
-                {
-                    "weight": {"imperial": "5 - 9", "metric": "2 - 4"},
-                    "id": "munc",
-                    "name": "Munchkin",
-                    "vetstreet_url": "http://www.vetstreet.com/cats/munchkin",
-                    "temperament": "Agile, Easy Going, Intelligent, Playful",
-                    "origin": "United States",
-                    "country_codes": "US",
-                    "country_code": "US",
-                    "description": "The Munchkin is an outgoing cat who enjoys being handled. She has lots of energy and is faster and more agile than she looks. The shortness of their legs does not seem to interfere with their running and leaping abilities.",  # noqa E501
-                    "life_span": "10 - 15",
-                    "indoor": 0,
-                    "lap": 1,
-                    "alt_names": "",
-                    "adaptability": 5,
-                    "affection_level": 5,
-                    "child_friendly": 4,
-                    "dog_friendly": 5,
-                    "energy_level": 4,
-                    "grooming": 2,
-                    "health_issues": 3,
-                    "intelligence": 5,
-                    "shedding_level": 3,
-                    "social_needs": 5,
-                    "stranger_friendly": 5,
-                    "vocalisation": 3,
-                    "experimental": 0,
-                    "hairless": 0,
-                    "natural": 0,
-                    "rare": 0,
-                    "rex": 0,
-                    "suppressed_tail": 0,
-                    "short_legs": 1,
-                    "wikipedia_url": "https://en.wikipedia.org/wiki/Munchkin_(cat)",
-                    "hypoallergenic": 0,
-                    "reference_image_id": "j5cVSqLer",
-                }
-            ],
             "width": 1600,
             "height": 1200,
         }
@@ -174,12 +96,6 @@ class BreedMocker:
                 "wikipedia_url": "https://en.wikipedia.org/wiki/Aegean_cat",
                 "hypoallergenic": 0,
                 "reference_image_id": "ozEvzdVM-",
-                "image": {
-                    "id": "ozEvzdVM-",
-                    "width": 1200,
-                    "height": 800,
-                    "url": "https://cdn2.thecatapi.com/images/ozEvzdVM-.jpg",
-                },
             }
         ]
 
@@ -228,29 +144,25 @@ class CatsAPIClient:
     def get_breeds(self, page=0, limit=10):
         url = f"{self.host}/v1/breeds"
         params = {"page": page, "limit": limit}
-        logger.info(f"Fetching breeds: {url} - {params}")
+
+        logger.info(f"Cats API: fetching breeds: {url} - {params}")
         response = self.session.request("GET", url=url, params=params)
         data = response.json()
         return data
 
-    def get_images(self, image_ids):
-        images = []
-        image_ids = image_ids or []
-        for image_id in image_ids:
-            url = f"{self.host}/v1/images/{image_id}"
+    def get_image(self, image_id):
+        url = f"{self.host}/v1/images/{image_id}"
 
-            logger.info(f"Fetching images via ids: {url}")
-            response = self.session.request("GET", url=url)
-            data = response.json()
-            images.append(data)
-
-        return images
+        logger.info(f"Cats API: fetching image data: {url}")
+        response = self.session.request("GET", url=url)
+        data = response.json()
+        return data
 
     def search_images(self, page=0, limit=10):
         url = f"{self.host}/v1/images/search"
         params = {"page": page, "limit": limit, "has_breeds": 1, "order": "DESC"}
 
-        logger.info(f"Fetching random images: {url} - {params}")
+        logger.info(f"Cats API: fetching random images: {url} - {params}")
         response = self.session.request("GET", url=url, params=params)
         data = response.json()
         return data

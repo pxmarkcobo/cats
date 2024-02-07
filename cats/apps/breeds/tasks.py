@@ -1,6 +1,9 @@
+import base64
 import logging
 
+import requests
 from django.conf import settings
+from django.core.files.base import ContentFile
 
 from cats.apps.breeds.models import Breed, Image
 from cats.utils.client import CatsAPIClient
@@ -9,8 +12,8 @@ from config import celery_app
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(bind=True)
-def download_breeds(self):
+@celery_app.task
+def download_breeds():
     client = CatsAPIClient(
         host=settings.CATS_API_HOST,
         api_key=settings.CATS_API_KEY,
@@ -26,26 +29,15 @@ def download_breeds(self):
             break
         page += 1
 
-    # Fetch image data on demand
+    logger.info(f"Fetched total of {len(breeds)} breeds.")
+
     image_ids = {
         obj["reference_image_id"]
         for obj in breeds
         if obj.get("reference_image_id", None)
     }
-
-    images = []
-    if image_ids:
-        existing_images = set(Image.objects.values_list("external_id", flat=True))
-        image_ids = image_ids - existing_images
-        images = client.get_images(image_ids)
-
-    for image in images:
-        obj, _ = Image.objects.get_or_create(
-            external_id=image["id"],
-            url=image["url"],
-            width=image["width"],
-            height=image["height"],
-        )
+    # Fetch image raw data on demand
+    fetch_images(client, image_ids)
 
     for breed in breeds:
         obj, _ = Breed.objects.get_or_create(external_id=breed["id"])
@@ -99,5 +91,41 @@ def download_breeds(self):
         obj.hypoallergenic = bool(breed["hypoallergenic"])
 
         # image
-        obj.reference_image_id = breed.get("reference_image_id", "")
+        image_id = breed.get("reference_image_id")
+        if image_id:
+            obj.reference_image_id = image_id
         obj.save()
+
+
+def fetch_images(client, image_ids):
+    if not image_ids:
+        return
+
+    existing_images = set(Image.objects.values_list("external_id", flat=True))
+    missing_images = image_ids - existing_images
+    logger.info(f"Missing image IDs: {missing_images}")
+
+    if not missing_images:
+        logger.info("No images to retrieve.")
+        return
+
+    for image_id in missing_images:
+        image = client.get_image(image_id)
+        obj = Image.objects.create(
+            external_id=image["id"],
+            url=image["url"],
+            width=image["width"],
+            height=image["height"],
+        )
+        url = image["url"]
+        logger.info(f"Fetching raw image data: {url}")
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            filename = url.split("/")[-1]
+            logger.info(f"Saving image raw data in file: {filename}")
+            image_data = base64.b64decode(base64.b64encode(response.content).decode())
+            obj.image = ContentFile(image_data, name=filename)
+            obj.save()
+        else:
+            logger.info("Failed.")

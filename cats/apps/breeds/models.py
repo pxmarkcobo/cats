@@ -10,6 +10,7 @@ class Image(models.Model):
     width = models.PositiveSmallIntegerField()
     height = models.PositiveSmallIntegerField()
     url = models.CharField(max_length=200, blank=True)
+    image = models.ImageField(verbose_name="image", upload_to="images", blank=True)
 
     def __str__(self):
         return f"{self.external_id}"
@@ -89,4 +90,4 @@ class Breed(models.Model):
                     self.image = image
             else:
                 self.image = None
-        return super().save(**kwargs)
+        return super().save()

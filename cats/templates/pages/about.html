@@ -1,9 +1,205 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block css %}
   {{ block.super }}
+  <link href="{% static 'css/github-dark.min.css' %}" rel="stylesheet">
+  <style>
+    p, span {
+      font-size: .875em;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script src="{% static "js/highlight.min.js" %}"></script>
+  <script src="{% static "js/python.min.js" %}"></script>
+
+  <script>hljs.highlightAll();</script>
 {% endblock %}
 
 {% block content %}
-  <p>this is about page...</p>
+  <div class="text-start">
+    <h1 class="display-6 m-4">
+      Building a Cat Information Website
+    </h1>
+    <hr>
+    <p>The website leverages the Cat API to fetch breed information and images, using <mark>Django</mark> as the web framework and Celery for asynchronous tasks.</p>
+
+    <p class="lead">🚀 Technologies Used</p>
+    <ul>
+      <li>😸 <a href="https://documenter.getpostman.com/view/4016432/RWToRJCq#ea81771b-b042-42d1-ab7f-c75deb6bb259" target="_blank">Cat API</a></li>
+      <li>🐍 <a href="https://www.djangoproject.com/" target="_blank">Python Django</a></li>
+      <li>&lt;/&gt; <a href="https://htmx.org/" target="_blank">htmx</a></li>
+      <li>🅱 <a href="https://getbootstrap.com/" target="_blank">Bootstrap UI</a></li>
+    </ul>
+
+    <p>Here are the steps taken for this project:</p>
+
+    <p class="lead">1. 🔎 Familiarize with the Cats API</p>
+    <p>&nbsp;&nbsp;Begin by reviewing the Cats API documentation available in the provided Postman collection. Understand the endpoints available for fetching breed information and images. This will help in designing the models and API client for the website.</p>
+
+    <p class="lead">2. ⚙ Bootstrap Django Project</p>
+    <p>&nbsp;&nbsp;Use Django <u><a href="https://github.com/cookiecutter/cookiecutter-django" target="_blank">CookieCutter</a></u> to quickly bootstrap the project with a standard Django setup. Django CookieCutter provides a project template with best practices and commonly used configurations, speeding up initial setup.</p>
+
+    <p class="lead">3. 🏗 Create Models</p>
+    <p>&nbsp;&nbsp;Design and implement models to represent cat breeds and images within the Django application. These models will store information fetched from the Cats API.</p>
+
+    <p>Models:</p>
+    <ul>
+      <li><span>Breed: Should atleast include fields like name, origin, and description.</span></li>
+      <li><span>Image: Should atleast include the URL to the image. I decided to save the raw image data.</span></li>
+    </ul>
+    <p class="d-inline-flex gap-1">
+      <a class="btn btn-dark" data-bs-toggle="collapse" href="#step-3-code" role="button" aria-expanded="false" aria-controls="step-3-code">
+        > code snippet
+      </a>
+    </p>
+    <div class="collapse" id="step-3-code">
+      <div class="bg-dark border-0 card card-body">
+        <pre>
+          <code class="language-python">
+from django.db import models
+
+class Image(models.Model):
+  external_id = models.CharField(max_length=200, unique=True)
+  url = models.CharField(max_length=200, blank=True)
+  image = models.ImageField(
+      verbose_name="image", upload_to="images", blank=True
+  )
+  ...
+
+class Breed(models.Model):
+  external_id = models.CharField(max_length=200, unique=True)
+  name = models.CharField(max_length=200)
+  description = models.TextField(blank=True)
+  alt_names = models.CharField(max_length=200, blank=True)
+  origin = models.CharField(max_length=200, blank=True)
+  country_code = models.CharField(max_length=200, blank=True)
+  ...
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <p class="lead">4. <i class="fa-solid fa-ethernet"></i> ‍Create APIClient</p>
+    <p>Develop an API client that interfaces with the Cats API to fetch breed information and images. This client will be used by the Celery tasks to periodically update the database with new data.</p>
+
+    <p class="d-inline-flex gap-1">
+      <a class="btn btn-dark" data-bs-toggle="collapse" href="#step-4-code" role="button" aria-expanded="false" aria-controls="step-4-code">
+        > code snippet
+      </a>
+    </p>
+    <div class="collapse" id="step-4-code">
+      <div class="bg-dark border-0 card card-body">
+        <pre>
+          <code class="language-python">
+class CatsAPIClient:
+  def __init__(self, host="", api_key=""):
+    self.host = host
+    self.api_key = api_key
+    self.use_mocks = self.host.startswith("mock://")
+
+    session = requests.Session()
+    session.hooks["response"] = [raise_and_log_error]
+
+    if self.use_mocks:
+        mock_adapter = requests_mock.Adapter()
+        session.mount("mock://", mock_adapter)
+        mock_adapter.add_matcher(CatAPIMatcher())
+    else:
+        retry_strategy = Retry(
+            total=3,
+            status_forcelist=[429, 500, 503],
+            allowed_methods=["GET", "POST"],
+            backoff_factor=2,
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session.mount(self.host, adapter)
+
+    self.session = session
+
+    def get_breeds(self, page=0, limit=10):
+        url = f"{self.host}/v1/breeds"
+        params = {"page": page, "limit": limit}
+
+        logger.info(f"Cats API: fetching breeds: {url} - {params}")
+        response = self.session.request("GET", url=url, params=params)
+        data = response.json()
+        return data
+
+    def get_image(self, image_id):
+        url = f"{self.host}/v1/images/{image_id}"
+
+        logger.info(f"Cats API: fetching image data: {url}")
+        response = self.session.request("GET", url=url)
+        data = response.json()
+        return data
+          </code>
+        </pre>
+      </div>
+    </div>
+    <p class="lead">5. <i class="fa-solid fa-list-check"></i> Create Celery Tasks</p>
+    <p>Set up Celery in the Django project to handle asynchronous tasks. Create tasks to download breed information and images using the APIClient. Schedule these tasks to run periodically to ensure the database is up-to-date.</p>
+    <p class="d-inline-flex gap-1">
+      <a class="btn btn-dark" data-bs-toggle="collapse" href="#step-5-code" role="button" aria-expanded="false" aria-controls="step-5-code">
+        > code snippet
+      </a>
+    </p>
+    <div class="collapse" id="step-5-code">
+      <div class="bg-dark border-0 card card-body">
+        <pre>
+          <code class="language-python">
+@celery_app.task
+def download_breeds():
+    client = CatsAPIClient(
+        host=settings.CATS_API_HOST,
+        api_key=settings.CATS_API_KEY,
+    )
+
+    breeds = []
+    page = 0
+    limit = settings.CATS_API_DATA_LIMIT
+    while True:
+        data = client.get_breeds(page=page, limit=limit)
+        breeds.extend(data)
+        if len(data) < limit:
+            break
+        page += 1
+
+    logger.info(f"Fetched total of {len(breeds)} breeds.")
+
+    image_ids = {
+      obj["reference_image_id"]
+      for obj in breeds
+      if obj.get("reference_image_id", None)
+    }
+
+    # Fetch image raw data on demand
+    fetch_images(client, image_ids)
+
+    for breed in breeds:
+      obj, _ = Breed.objects.get_or_create(external_id=breed["id"])
+      # Create Breed and Image objects using the downloaded data...
+          </code>
+        </pre>
+      </div>
+    </div>
+
+    <p class="lead">6. <i class="fa-solid fa-pager"></i> Create Website Pages</p>
+    <p>Develop the website pages to display the features of the site. Use Django's templating language to create dynamic content based on the models.</p>
+    <ul>
+      <li><span>The <a href="{% url "home" %}" target="_blank"><em>Home page</em></a> is the first point of interaction for users. It introduces the website and highlights its key features, including the ability to view random cat images, explore different cat breeds, and learn about the website's creation.</span></li>
+      <li><span>The <a href="{% url "breeds:list" %}" target="_blank"><em>Breeds page</em></a> offers a comprehensive list of cat breeds, along with essential information about each breed. This page serves as an educational resource for users interested in learning more about different cat breeds.</span></li>
+      <li><span>The <a href="#" ><em>About page</em></a> documents the steps involved in building the website, providing insights into the development process and the technologies used.</span></li>
+    </ul>
+
+  </div>
+
 {% endblock %}

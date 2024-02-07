@@ -1,0 +1,387 @@
+{% load utility_filters %}
+
+<style>
+  .characteristics span {
+    font-size: .80rem;
+  }
+
+  .level {
+    & svg.positive:nth-child(5) {
+      color: #91C56C;
+    }
+    & svg.positive:nth-child(4) {
+      color: #699D47;
+    }
+    & svg.positive:nth-child(3) {
+      color: #437622;
+    }
+    & svg.positive:nth-child(2) {
+      color: #1B5100;
+    }
+    & svg.positive:nth-child(1) {
+      color: #022E00;
+    }
+
+    & svg.negative {
+      color: #212529;
+    }
+  }
+</style>
+
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title user-select-none" id="breed-off-canvas-label">{{ breed.name }}</h5>
+  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+</div>
+<div class="offcanvas-body">
+  <div class="ratio ratio-1x1 rounded-circle overflow-hidden mx-auto my-3" style="width: 12rem;">
+    <img
+      onload="hidePlaceholder()"
+      src="{{ breed.image.image.url }}"
+      class="card-img-top img-cover"
+      alt="{{ breed.name }}"
+    >
+    <div
+      id="cat-image-placeholder"
+      class="placeholder-glow placeholder col-6"
+    >
+    </div>
+  </div>
+  <figure class="text-end">
+    <blockquote class="fs-6 user-select-none">
+      {{ breed.temperament }}
+    </blockquote>
+    <figcaption class="blockquote-footer text-end">
+      <cite title="Source Title">
+        <a
+          class="text-decoration-none user-select-none"
+          style="cursor: pointer"
+          {% if breed.vetstreet_url %}
+            href="{{ breed.vetstreet_url }}"
+            target="_blank"
+          {% endif %}
+        >
+          Vetstreet
+        </a>
+      </cite>
+    </figcaption>
+  </figure>
+  <hr>
+  <div class="characteristics">
+    <div class="row mb-1">
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Adaptability</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.adaptability|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.adaptability|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Child-Friendly</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.child_friendly|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.child_friendly|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-1">
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Shedding Level</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.shedding_level|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.shedding_level|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Affectionate</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.affection_level|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.affection_level|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-1">
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Intelligence</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.intelligence|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.intelligence|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Energy Level</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.energy_level|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.energy_level|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-1">
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Social Needs</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.social_needs|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.social_needs|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Grooming</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.grooming|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.grooming|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-1">
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Dog Friendly</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.dog_friendly|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.dog_friendly|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Health Issues</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.health_issues|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.health_issues|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-1">
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Stranger Friendly</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.stranger_friendly|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.stranger_friendly|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col text-start d-flex flex-row justify-content-between">
+        <span>Vocalisation</span>
+        <div class="d-flex d-flex-row level">
+          {% for i in breed.vocalisation|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 positive" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+          {% for i in 5|minus:breed.vocalisation|range %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill m-0 p-0 negative" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="8"></circle>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div>
+    <p class="text-start fs-6 fw-lighter user-select-none">
+      {% with breed.description|replace:". :.<br><br>" as description %}
+        {% autoescape off %}
+          {{ description }}
+        {% endautoescape %}
+      {% endwith %}
+    </p>
+  </div>
+  <button class="btn btn-secondary" onclick="renderRightCanvas()">Learn more</button>
+
+  <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="breeds-off-canvas-right" aria-labelledby="breed-off-canvas-right-label">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title user-select-none" id="breed-off-canvas-right-label">{{ breed.alt_names }}</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+          <div class="card text-bg-dark">
+            <div class="card-body">
+              <h6 class="card-title">Weight <i class="fa-solid fa-scale-balanced"></i> </h6>
+              <p class="card-text">{{ breed.weight_imperial_min }}-{{ breed.weight_imperial_max }} pounds</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card text-bg-dark">
+            <div class="card-body">
+              <h6 class="card-title">Lifespan <i class="fa-solid fa-heart-pulse"></i></h6>
+              <p class="card-text">{{ breed.life_span_min }}-{{ breed.life_span_max }} years</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="lead my-4">Characteristics</p>
+      <div class="characteristics">
+        <div class="row mb-1">
+          <div class="col text-end">
+            Indoor
+          </div>
+          <div class="col text-start">
+            {{ breed.indoor|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Experimental
+          </div>
+          <div class="col text-start">
+            {{ breed.experimental|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Hairless
+          </div>
+          <div class="col text-start">
+            {{ breed.hairless|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Natural
+          </div>
+          <div class="col text-start">
+            {{ breed.natural|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Rare
+          </div>
+          <div class="col text-start">
+            {{ breed.rare|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Rex
+          </div>
+          <div class="col text-start">
+            {{ breed.rex|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Suppressed tail
+          </div>
+          <div class="col text-start">
+            {{ breed.suppressed_tail|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Short legs
+          </div>
+          <div class="col text-start">
+            {{ breed.short_legs|check_indicator_template|safe }}
+          </div>
+        </div>
+        <div class="row mb-1">
+          <div class="col text-end">
+            Hypoallergenic
+          </div>
+          <div class="col text-start">
+            {{ breed.hypoallergenic|check_indicator_template|safe }}
+          </div>
+        </div>
+      </div>
+      <hr>
+      <p class="lead text-start">Links:</p>
+      <ul class="list-unstyled">
+        {% if breed.vetstreet_url %}
+           <li><a class="link-light" href="{{ breed.vetstreet_url }}" target="_blank">Vetstreet</a></li>
+        {% endif %}
+        {% if breed.vetstreet_url %}
+           <li><a class="link-light" href="{{ breed.wikipedia_url }}" target="_blank">Wikipedia</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</div>

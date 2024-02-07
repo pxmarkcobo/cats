@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load utility_filters %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .breed {
+      cursor: pointer;
+      border-bottom: .25rem solid transparent;
+    }
+
+    .breed:hover,
+    .breed:focus {
+      border-bottom-color: rgba(255, 255, 255, .25);
+    }
+
+    .offcanvas {
+      overflow-y: hidden;
+      width: 450px !important;
+    }
+
+    .img-cover {
+      object-fit: cover;
+    }
+
+  </style>
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script type="text/javascript">
+    window.addEventListener('DOMContentLoaded',function() {
+      const $canvas = document.getElementById('breed-off-canvas');
+      $canvas.addEventListener('hide.bs.offcanvas	', event => {
+        const $container = document.getElementById("breed-off-canvas");
+        $container.innerHTML = "";
+      });
+    });
+
+    function renderOffCanvas() {
+      const bsCanvas = new bootstrap.Offcanvas("#breed-off-canvas")
+      bsCanvas.show();
+    }
+
+    function renderRightCanvas() {
+      const bsCanvasRight = new bootstrap.Offcanvas("#breeds-off-canvas-right")
+      bsCanvasRight.show();
+    }
+
+    function hidePlaceholder() {
+      const $placeholder = document.getElementById("cat-image-placeholder");
+      $placeholder.style.display = "none";
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+  <ul class="list-inline">
+      {% for breed in breeds %}
+        {% with forloop.counter0 as idx %}
+          <li
+            id="{{ idx }}"
+            class="breed list-inline-item"
+            style="color:{{ "pastel"|color }}"
+            hx-trigger="click"
+            hx-get="{% url 'breeds:detail' breed.id %}"
+            hx-swap="innerHTML"
+            hx-target="#breed-off-canvas"
+          >{{ breed.name }}</li>
+        {% endwith %}
+      {% empty %}
+        <p class="lead">Someone forgot to run the sync tasks...</p>
+      {% endfor %}
+  </ul>
+
+  <div
+    id="breed-off-canvas"
+    class="offcanvas offcanvas-start text-bg-dark"
+    aria-labelledby="breed-off-canvas-label"
+    hx-on::after-swap="renderOffCanvas()"
+    tabindex="-1"
+  >
+  </div>
+{% endblock %}
